@@ -3,8 +3,7 @@
 <head>
     <title>Welcome to Iftiqar's Engagement</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe@1.2.0/dist/aframe-master.js"></script>
-    <script src="https://unpkg.com/aframe-extras@6.1.2/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.3.2/aframe/build/aframe-ar.js"></script>
     <style>
         body { margin: 0; overflow: hidden; }
         #textContainer { position: absolute; top: 20px; left: 20px; color: white; }
@@ -15,12 +14,7 @@
         <h2>Welcome to Iftiqar's Engagement</h2>
     </div>
 
-    <a-scene
-        vr-mode-ui="enabled: false"
-        embedded
-        renderer="logarithmicDepthBuffer: true;"
-        webxr="optionalFeatures: hit-test;"
-    >
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
         <a-entity camera></a-entity>
 
         <!-- Container to place content on detected surface -->
@@ -74,7 +68,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const sceneEl = document.querySelector('a-scene');
             const contentContainer = document.querySelector('#contentContainer');
             const bismillahText = document.querySelector('#bismillah');
             const line1Text = document.querySelector('#line1');
@@ -114,7 +107,16 @@
             }
 
             // Add event listener for hit-test results
-            sceneEl.addEventListener('xr-hit-test', (e) => {
+            window.addEventListener('click', (event) => {
+                if (!isContentPlaced) {
+                    contentContainer.object3D.position.copy(event.detail.intersection.point);
+                    startARExperience();
+                    isContentPlaced = true;
+                }
+            });
+
+            // Detect surface for placement
+            sceneEl.addEventListener('arjs-hit-test', (e) => {
                 if (!isContentPlaced) {
                     const hitTest = e.detail;
                     const hitTestResult = hitTest.results[0];
@@ -131,28 +133,6 @@
                     }
                 }
             });
-
-            // Register the component to perform hit-tests
-            AFRAME.registerComponent('xr-hit-test', {
-                init: function () {
-                    this.el.sceneEl.renderer.xr.addEventListener('sessionstart', async () => {
-                        const session = this.el.sceneEl.renderer.xr.getSession();
-                        const viewerSpace = await session.requestReferenceSpace('viewer');
-                        const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
-                        this.el.sceneEl.renderer.xr.setAnimationLoop(() => {
-                            if (!this.el.sceneEl.is('ar-mode')) return;
-                            const frame = this.el.sceneEl.frame;
-                            const referenceSpace = this.el.sceneEl.renderer.xr.getReferenceSpace();
-                            const hitTestResults = frame.getHitTestResults(hitTestSource);
-                            if (hitTestResults.length > 0) {
-                                this.el.emit('xr-hit-test', { results: hitTestResults });
-                            }
-                        });
-                    });
-                }
-            });
-
-            sceneEl.setAttribute('xr-hit-test', '');
         });
     </script>
 </body>
