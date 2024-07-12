@@ -3,43 +3,62 @@
 <head>
     <title>Welcome to Iftiqar's Engagement</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.3.2/aframe/build/aframe-ar.js"></script>
+    <script src="https://unpkg.com/aframe-ar-nft@1.0.0/dist/aframe-ar-nft.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #textContainer { position: absolute; top: 20px; left: 20px; color: white; }
+    </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs="trackingMethod: best; sourceType: webcam;">
-        <!-- Marker setup -->
-        <a-marker preset="hiro">
+<body>
+    <div id="textContainer">
+        <h2>Welcome to Iftiqar's Engagement</h2>
+    </div>
+
+    <a-scene
+        vr-mode-ui="enabled: false"
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+        embedded
+        renderer="logarithmicDepthBuffer: true;"
+    >
+        <a-entity camera></a-entity>
+
+        <!-- Container to place content on detected surface -->
+        <a-entity id="contentContainer" visible="false">
             <!-- Bismillah Text -->
             <a-text 
                 id="bismillah" 
-                value="بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ" 
-                position="0 0.5 0" 
+                value="بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ"
+                position="0 2 0" 
                 scale="3 3 3" 
                 color="#0000FF"
+                visible="false"
             ></a-text>
+            
             <!-- Line 1 Text -->
             <a-text 
                 id="line1" 
                 value="Welcome to Iftiqar's Engagement" 
-                position="0 0 0" 
+                position="0 1.5 0" 
                 scale="3 3 3" 
                 color="#FF0000"
                 visible="false"
             ></a-text>
+            
             <!-- Line 2 Text -->
             <a-text 
                 id="line2" 
                 value="بَارَكَ اللهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ" 
-                position="0 -0.5 0" 
+                position="0 1 0" 
                 scale="2 2 2" 
                 color="#0000FF"
                 visible="false"
             ></a-text>
+            
             <!-- Line 3 Text -->
             <a-text 
                 id="line3" 
                 value="May Allah bless you and shower His blessings on you and Allah unite you both in goodness." 
-                position="0 -1 0" 
+                position="0 0.5 0" 
                 scale="2 2 2" 
                 color="#00FF00"
                 visible="false"
@@ -49,12 +68,15 @@
             <a-entity id="audioBismillah" sound="src: url(audio/bismillah.mp3); autoplay: false;"></a-entity>
             <a-entity id="audioLine2" sound="src: url(audio/line2.mp3); autoplay: false;"></a-entity>
             <a-entity id="audioLine3" sound="src: url(audio/line3.mp3); autoplay: false;"></a-entity>
-        </a-marker>
-        <a-entity camera></a-entity>
+        </a-entity>
+
+        <!-- Cursor for interaction -->
+        <a-entity cursor="fuse: true; fuseTimeout: 500" position="0 0 -1" geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03" material="color: #CCC; shader: flat;" raycaster="objects: .clickable"></a-entity>
     </a-scene>
 
     <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
+        document.addEventListener('DOMContentLoaded', () => {
+            const contentContainer = document.querySelector('#contentContainer');
             const bismillahText = document.querySelector('#bismillah');
             const line1Text = document.querySelector('#line1');
             const line2Text = document.querySelector('#line2');
@@ -64,31 +86,41 @@
             const audioLine2 = document.querySelector('#audioLine2');
             const audioLine3 = document.querySelector('#audioLine3');
 
-            // Show Bismillah text and play audio
-            bismillahText.setAttribute('visible', true);
-            audioBismillah.components.sound.playSound();
+            let isContentPlaced = false;
 
-            // After Bismillah audio ends, show Line 1 text
-            audioBismillah.addEventListener('sound-ended', () => {
-                line1Text.setAttribute('visible', true);
-                setTimeout(() => {
-                    line1Text.setAttribute('visible', false);
-                    // Show Line 2 text and play audio
-                    line2Text.setAttribute('visible', true);
-                    audioLine2.components.sound.playSound();
-                }, 2000); // Wait for 2 seconds before showing Line 2
-            });
+            // Function to start AR experience
+            function startARExperience() {
+                contentContainer.setAttribute('visible', true);
+                bismillahText.setAttribute('visible', true);
+                audioBismillah.components.sound.playSound();
 
-            // After Line 2 audio ends, show Line 3 text
-            audioLine2.addEventListener('sound-ended', () => {
-                line2Text.setAttribute('visible', false);
-                line3Text.setAttribute('visible', true);
-                audioLine3.components.sound.playSound();
-            });
+                audioBismillah.addEventListener('sound-ended', () => {
+                    line1Text.setAttribute('visible', true);
+                    setTimeout(() => {
+                        line1Text.setAttribute('visible', false);
+                        line2Text.setAttribute('visible', true);
+                        audioLine2.components.sound.playSound();
+                    }, 2000);
+                });
 
-            // Hide Line 3 after audio ends
-            audioLine3.addEventListener('sound-ended', () => {
-                line3Text.setAttribute('visible', false);
+                audioLine2.addEventListener('sound-ended', () => {
+                    line2Text.setAttribute('visible', false);
+                    line3Text.setAttribute('visible', true);
+                    audioLine3.components.sound.playSound();
+                });
+
+                audioLine3.addEventListener('sound-ended', () => {
+                    line3Text.setAttribute('visible', false);
+                });
+            }
+
+            // Place content on surface on first click
+            window.addEventListener('click', (event) => {
+                if (!isContentPlaced) {
+                    contentContainer.object3D.position.copy(event.detail.intersection.point);
+                    startARExperience();
+                    isContentPlaced = true;
+                }
             });
         });
     </script>
