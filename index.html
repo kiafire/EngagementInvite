@@ -7,37 +7,43 @@
 </head>
 <body style="margin: 0; overflow: hidden;">
     <a-scene embedded arjs>
+        <!-- Camera with AR.js configuration -->
+        <a-camera gps-camera rotation-reader></a-camera>
+
         <!-- Bismillah Text -->
         <a-text 
             id="bismillah" 
             value="بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ" 
-            position="0 1.5 -2" 
+            position="0 2 -2" 
             scale="3 3 3" 
             color="#0000FF"
         ></a-text>
+
         <!-- Line 1 Text -->
         <a-text 
             id="line1" 
             value="Welcome to Iftiqar's Engagement" 
-            position="0 1 -2" 
+            position="0 1.5 -2" 
             scale="3 3 3" 
             color="#FF0000"
             visible="false"
         ></a-text>
+
         <!-- Line 2 Text -->
         <a-text 
             id="line2" 
             value="بَارَكَ اللهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ" 
-            position="0 0.5 -2" 
+            position="0 1 -2" 
             scale="2 2 2" 
             color="#0000FF"
             visible="false"
         ></a-text>
+
         <!-- Line 3 Text -->
         <a-text 
             id="line3" 
             value="May Allah bless you and shower His blessings on you and Allah unite you both in goodness." 
-            position="0 0 -2" 
+            position="0 0.5 -2" 
             scale="2 2 2" 
             color="#00FF00"
             visible="false"
