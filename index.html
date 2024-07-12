@@ -3,7 +3,8 @@
 <head>
     <title>Welcome to Iftiqar's Engagement</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://unpkg.com/aframe-ar-nft@1.0.0/dist/aframe-ar-nft.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.2.0/dist/aframe-master.js"></script>
+    <script src="https://unpkg.com/aframe-extras@6.1.2/dist/aframe-extras.min.js"></script>
     <style>
         body { margin: 0; overflow: hidden; }
         #textContainer { position: absolute; top: 20px; left: 20px; color: white; }
@@ -16,9 +17,9 @@
 
     <a-scene
         vr-mode-ui="enabled: false"
-        arjs="sourceType: webcam; debugUIEnabled: false;"
         embedded
         renderer="logarithmicDepthBuffer: true;"
+        webxr="optionalFeatures: hit-test;"
     >
         <a-entity camera></a-entity>
 
@@ -69,13 +70,11 @@
             <a-entity id="audioLine2" sound="src: url(audio/line2.mp3); autoplay: false;"></a-entity>
             <a-entity id="audioLine3" sound="src: url(audio/line3.mp3); autoplay: false;"></a-entity>
         </a-entity>
-
-        <!-- Cursor for interaction -->
-        <a-entity cursor="fuse: true; fuseTimeout: 500" position="0 0 -1" geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03" material="color: #CCC; shader: flat;" raycaster="objects: .clickable"></a-entity>
     </a-scene>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const sceneEl = document.querySelector('a-scene');
             const contentContainer = document.querySelector('#contentContainer');
             const bismillahText = document.querySelector('#bismillah');
             const line1Text = document.querySelector('#line1');
@@ -114,14 +113,46 @@
                 });
             }
 
-            // Place content on surface on first click
-            window.addEventListener('click', (event) => {
+            // Add event listener for hit-test results
+            sceneEl.addEventListener('xr-hit-test', (e) => {
                 if (!isContentPlaced) {
-                    contentContainer.object3D.position.copy(event.detail.intersection.point);
-                    startARExperience();
-                    isContentPlaced = true;
+                    const hitTest = e.detail;
+                    const hitTestResult = hitTest.results[0];
+
+                    if (hitTestResult) {
+                        const position = hitTestResult.transform.position;
+                        const rotation = hitTestResult.transform.orientation;
+
+                        contentContainer.object3D.position.set(position.x, position.y, position.z);
+                        contentContainer.object3D.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+
+                        startARExperience();
+                        isContentPlaced = true;
+                    }
                 }
             });
+
+            // Register the component to perform hit-tests
+            AFRAME.registerComponent('xr-hit-test', {
+                init: function () {
+                    this.el.sceneEl.renderer.xr.addEventListener('sessionstart', async () => {
+                        const session = this.el.sceneEl.renderer.xr.getSession();
+                        const viewerSpace = await session.requestReferenceSpace('viewer');
+                        const hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
+                        this.el.sceneEl.renderer.xr.setAnimationLoop(() => {
+                            if (!this.el.sceneEl.is('ar-mode')) return;
+                            const frame = this.el.sceneEl.frame;
+                            const referenceSpace = this.el.sceneEl.renderer.xr.getReferenceSpace();
+                            const hitTestResults = frame.getHitTestResults(hitTestSource);
+                            if (hitTestResults.length > 0) {
+                                this.el.emit('xr-hit-test', { results: hitTestResults });
+                            }
+                        });
+                    });
+                }
+            });
+
+            sceneEl.setAttribute('xr-hit-test', '');
         });
     </script>
 </body>
