@@ -6,53 +6,51 @@
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.3.2/aframe/build/aframe-ar.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs>
-        <!-- Camera with AR.js configuration -->
-        <a-camera gps-camera rotation-reader></a-camera>
-
-        <!-- Bismillah Text -->
-        <a-text 
-            id="bismillah" 
-            value="بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ" 
-            position="0 2 -2" 
-            scale="3 3 3" 
-            color="#0000FF"
-        ></a-text>
-
-        <!-- Line 1 Text -->
-        <a-text 
-            id="line1" 
-            value="Welcome to Iftiqar's Engagement" 
-            position="0 1.5 -2" 
-            scale="3 3 3" 
-            color="#FF0000"
-            visible="false"
-        ></a-text>
-
-        <!-- Line 2 Text -->
-        <a-text 
-            id="line2" 
-            value="بَارَكَ اللهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ" 
-            position="0 1 -2" 
-            scale="2 2 2" 
-            color="#0000FF"
-            visible="false"
-        ></a-text>
-
-        <!-- Line 3 Text -->
-        <a-text 
-            id="line3" 
-            value="May Allah bless you and shower His blessings on you and Allah unite you both in goodness." 
-            position="0 0.5 -2" 
-            scale="2 2 2" 
-            color="#00FF00"
-            visible="false"
-        ></a-text>
-        
-        <!-- Audio Entities -->
-        <a-entity id="audioBismillah" sound="src: url(audio/bismillah.mp3); autoplay: false;"></a-entity>
-        <a-entity id="audioLine2" sound="src: url(audio/line2.mp3); autoplay: false;"></a-entity>
-        <a-entity id="audioLine3" sound="src: url(audio/line3.mp3); autoplay: false;"></a-entity>
+    <a-scene embedded arjs="trackingMethod: best; sourceType: webcam;">
+        <!-- Marker setup -->
+        <a-marker preset="hiro">
+            <!-- Bismillah Text -->
+            <a-text 
+                id="bismillah" 
+                value="بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ" 
+                position="0 0.5 0" 
+                scale="3 3 3" 
+                color="#0000FF"
+            ></a-text>
+            <!-- Line 1 Text -->
+            <a-text 
+                id="line1" 
+                value="Welcome to Iftiqar's Engagement" 
+                position="0 0 0" 
+                scale="3 3 3" 
+                color="#FF0000"
+                visible="false"
+            ></a-text>
+            <!-- Line 2 Text -->
+            <a-text 
+                id="line2" 
+                value="بَارَكَ اللهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ" 
+                position="0 -0.5 0" 
+                scale="2 2 2" 
+                color="#0000FF"
+                visible="false"
+            ></a-text>
+            <!-- Line 3 Text -->
+            <a-text 
+                id="line3" 
+                value="May Allah bless you and shower His blessings on you and Allah unite you both in goodness." 
+                position="0 -1 0" 
+                scale="2 2 2" 
+                color="#00FF00"
+                visible="false"
+            ></a-text>
+            
+            <!-- Audio Entities -->
+            <a-entity id="audioBismillah" sound="src: url(audio/bismillah.mp3); autoplay: false;"></a-entity>
+            <a-entity id="audioLine2" sound="src: url(audio/line2.mp3); autoplay: false;"></a-entity>
+            <a-entity id="audioLine3" sound="src: url(audio/line3.mp3); autoplay: false;"></a-entity>
+        </a-marker>
+        <a-entity camera></a-entity>
     </a-scene>
 
     <script>
